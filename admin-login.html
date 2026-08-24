@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin Dashboard - MiTrade</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
+        body {
+            background: #0f172a;
+            min-height: 100vh;
+            padding: 12px;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: #1e293b;
+            padding: 12px 18px;
+            border-radius: 14px;
+            border: 1px solid #334155;
+            margin-bottom: 14px;
+        }
+        .header h1 {
+            color: #38bdf8;
+            font-size: 1.2rem;
+        }
+        .header .user {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .header .badge {
+            background: #22c55e;
+            padding: 2px 12px;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .btn-refresh {
+            background: #1877f2;
+            border: none;
+            color: #fff;
+            padding: 5px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        .btn-refresh:hover { background: #1a6ad4; }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .stat {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 14px;
+            border: 1px solid #334155;
+            text-align: center;
+        }
+        .stat .num {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+        .stat .label {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 4px;
+            border: 1px solid #334155;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 6px 14px;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.75rem;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .tab:hover { color: #fff; background: rgba(56,189,248,0.1); }
+        .tab.active { background: #1877f2; color: #fff; }
+
+        .table-wrap {
+            background: #1e293b;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            overflow-x: auto;
+            padding: 0 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+        }
+        th {
+            padding: 8px 10px;
+            text-align: left;
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid #334155;
+            white-space: nowrap;
+        }
+        td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #1e293b;
+            color: #e2e8f0;
+        }
+        tr:hover td { background: rgba(56,189,248,0.05); }
+
+        .badge-status {
+            padding: 1px 10px;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .badge-pending { background: rgba(245,158,11,0.2); color: #f59e0b; border: 1px solid #f59e0b; }
+        .badge-approved { background: rgba(34,197,94,0.2); color: #22c55e; border: 1px solid #22c55e; }
+        .badge-rejected { background: rgba(239,68,68,0.2); color: #ef4444; border: 1px solid #ef4444; }
+        .badge-verified { background: rgba(34,197,94,0.2); color: #22c55e; border: 1px solid #22c55e; }
+        .badge-none { color: #64748b; }
+
+        .action-btn {
+            padding: 3px 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.65rem;
+            font-weight: bold;
+            color: #fff;
+            margin: 1px;
+        }
+        .action-btn.approve { background: #22c55e; }
+        .action-btn.approve:hover { background: #16a34a; }
+        .action-btn.reject { background: #ef4444; }
+        .action-btn.reject:hover { background: #dc2626; }
+        .action-btn.view { background: #1877f2; }
+        .action-btn.view:hover { background: #1a6ad4; }
+        .action-btn.edit { background: #f59e0b; }
+        .action-btn.edit:hover { background: #d97706; }
+        .action-btn.delete { background: #7f1d1d; }
+        .action-btn.delete:hover { background: #991b1b; }
+
+        .empty {
+            text-align: center;
+            padding: 30px;
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+        .empty .icon { font-size: 2rem; display: block; margin-bottom: 6px; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 10px 18px;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: bold;
+            z-index: 999;
+            display: none;
+            max-width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .toast.show { display: block; animation: fadeUp 0.3s ease; }
+        .toast-success { border-color: #22c55e; }
+        .toast-error { border-color: #ef4444; }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        /* Modal แก้ไข */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15,23,42,0.85);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-box {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            max-width: 450px;
+            width: 100%;
+            padding: 24px;
+        }
+        .modal-box h3 {
+            color: #38bdf8;
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+        }
+        .modal-box .input-group {
+            margin-bottom: 12px;
+        }
+        .modal-box .input-group label {
+            display: block;
+            color: #94a3b8;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .modal-box .input-group input,
+        .modal-box .input-group select {
+            width: 100%;
+            background: #121824;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .modal-box .input-group input:focus,
+        .modal-box .input-group select:focus {
+            border-color: #38bdf8;
+        }
+        .modal-btns {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .modal-btns .btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #fff;
+        }
+        .modal-btns .btn-save { background: #1877f2; }
+        .modal-btns .btn-save:hover { background: #1a6ad4; }
+        .modal-btns .btn-cancel { background: #475569; }
+        .modal-btns .btn-cancel:hover { background: #334155; }
+
+        @media (max-width: 600px) {
+            .stats { grid-template-columns: 1fr 1fr; }
+            .tab { font-size: 0.65rem; padding: 4px 10px; }
+            th, td { padding: 5px 6px; font-size: 0.65rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <h1>🛡️ MiTrade Admin</h1>
+        <div class="user">
+            <span>✅ ระบบพร้อมใช้งาน</span>
+            <span class="badge">Live</span>
+            <button class="btn-refresh" id="btn-refresh">🔄 รีเฟรช</button>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats" id="stats-grid">
+        <div class="stat"><div class="num" id="s-users">0</div><div class="label">👥 ผู้ใช้</div></div>
+        <div class="stat"><div class="num" id="s-balance">$0</div><div class="label">💰 ยอดรวม</div></div>
+        <div class="stat"><div class="num" id="s-pending">0</div><div class="label">⏳ รออนุมัติ</div></div>
+        <div class="stat"><div class="num" id="s-today">0</div><div class="label">📊 วันนี้</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active" data-tab="deposits">💳 ฝาก</button>
+        <button class="tab" data-tab="withdrawals">💸 ถอน</button>
+        <button class="tab" data-tab="kyc">🛡️ KYC</button>
+        <button class="tab" data-tab="users">👥 ผู้ใช้</button>
+    </div>
+
+    <!-- Content -->
+    <div class="tab-content active" id="tab-deposits">
+        <div class="table-wrap">
+            <table><thead><tr><th>ผู้ใช้</th><th>จำนวน</th><th>TXID</th><th>เวลา</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+            <tbody id="deposits-body"><tr><td colspan="6" class="empty"><span class="icon">⏳</span> กำลังโหลด...</td></tr></tbody></table>
+        </div>
+    </div>
+
+    <div class="tab-content" id="tab-withdrawals">
+        <div class="table-wrap">
+            <table><thead><tr><th>ผู้ใช้</th><th>จำนวน</th><th>ที่อยู่</th><th>เวลา</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+            <tbody id="withdrawals-body"><tr><td colspan="6" class="empty"><span class="icon">⏳</span> กำลังโหลด...</td></tr></tbody></table>
+        </div>
+    </div>
+
+    <div class="tab-content" id="tab-kyc">
+        <div class="table-wrap">
+            <table><thead><tr><th>ผู้ใช้</th><th>ชื่อ</th><th>ประเทศ</th><th>เบอร์</th><th>เวลา</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+            <tbody id="kyc-body"><tr><td colspan="7" class="empty"><span class="icon">⏳</span> กำลังโหลด...</td></tr></tbody></table>
+        </div>
+    </div>
+
+    <div class="tab-content" id="tab-users">
+        <div class="table-wrap">
+            <table><thead><tr><th>User ID</th><th>ชื่อ</th><th>ยอดเงิน</th><th>KYC</th><th>เทรด</th><th>จัดการ</th></tr></thead>
+            <tbody id="users-body"><tr><td colspan="6" class="empty"><span class="icon">⏳</span> กำลังโหลด...</td></tr></tbody></table>
+        </div>
+    </div>
+</div>
+
+<!-- ====== MODAL แก้ไข ====== -->
+<div class="modal-overlay" id="edit-modal">
+    <div class="modal-box">
+        <h3 id="edit-modal-title">✏️ แก้ไขข้อมูล</h3>
+        <div id="edit-modal-body"></div>
+        <div class="modal-btns">
+            <button class="btn btn-save" id="btn-save-edit">💾 บันทึก</button>
+            <button class="btn btn-cancel" id="btn-cancel-edit">ยกเลิก</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// 🔓 ADMIN - เปิดแล้วใช้งานได้เลย (พร้อม ลบ/แก้ไข)
+// ============================================================
+
+const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyDCE_qqKanTTdVXYwBMBIfPu0M0Xy-kbX8",
+    authDomain: "hujai-web.firebaseapp.com",
+    databaseURL: "https://hujai-web-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "hujai-web",
+    storageBucket: "hujai-web.firebasestorage.app",
+    messagingSenderId: "827968973337",
+    appId: "1:827968973337:web:ae6ef630b59cf429575888"
+};
+
+function loadFirebase(callback) {
+    const s1 = document.createElement('script');
+    s1.src = 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js';
+    s1.onload = function() {
+        const s2 = document.createElement('script');
+        s2.src = 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js';
+        s2.onload = function() {
+            firebase.initializeApp(FIREBASE_CONFIG);
+            callback(firebase.database());
+        };
+        document.head.appendChild(s2);
+    };
+    document.head.appendChild(s1);
+}
+
+loadFirebase(function(db) {
+
+    // ====== ตัวแปรเก็บข้อมูลที่จะแก้ไข ======
+    let editTarget = {
+        path: '',
+        data: {},
+        type: ''
+    };
+
+    // ====== TOAST ======
+    function showToast(msg, type = 'success') {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.className = `toast toast-${type}`;
+        el.classList.add('show');
+        setTimeout(() => el.classList.remove('show'), 3000);
+    }
+
+    // ====== REFRESH ======
+    document.getElementById('btn-refresh').addEventListener('click', function() {
+        this.textContent = '⏳...';
+        refreshAll();
+        setTimeout(() => { this.textContent = '🔄 รีเฟรช'; }, 1000);
+        showToast('🔄 รีเฟรชข้อมูลแล้ว', 'success');
+    });
+
+    // ====== TABS ======
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+        });
+    });
+
+    // ====== MODAL ======
+    function openModal(title, bodyHtml) {
+        document.getElementById('edit-modal-title').textContent = title;
+        document.getElementById('edit-modal-body').innerHTML = bodyHtml;
+        document.getElementById('edit-modal').classList.add('show');
+    }
+
+    function closeModal() {
+        document.getElementById('edit-modal').classList.remove('show');
+        editTarget = { path: '', data: {}, type: '' };
+    }
+
+    document.getElementById('btn-cancel-edit').addEventListener('click', closeModal);
+
+    // ====== HELPERS ======
+    function badge(status) {
+        const map = {
+            'pending': '<span class="badge-status badge-pending">⏳ รอ</span>',
+            'approved': '<span class="badge-status badge-approved">✅ อนุมัติ</span>',
+            'verified': '<span class="badge-status badge-verified">✅ ยืนยัน</span>',
+            'rejected': '<span class="badge-status badge-rejected">❌ ปฏิเสธ</span>',
+            'none': '<span class="badge-status badge-none">-</span>'
+        };
+        return map[status] || map.pending;
+    }
+
+    function fmtDate(ts) {
+        if (!ts) return '-';
+        return new Date(ts).toLocaleString('th-TH', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+    }
+
+    function fmtNum(n) {
+        return Number(n || 0).toFixed(2);
+    }
+
+    // ====== LOAD FUNCTIONS ======
+    function loadStats() {
+        db.ref('users').once('value').then(snap => {
+            const users = snap.val() || {};
+            const keys = Object.keys(users);
+            let balance = 0, pending = 0, today = 0;
+            const todayStr = new Date().toDateString();
+
+            keys.forEach(k => {
+                const u = users[k];
+                if (u.balance) balance += u.balance;
+                if (u.deposits) {
+                    Object.values(u.deposits).forEach(d => {
+                        if (d.status === 'pending') pending++;
+                        if (new Date(d.timestamp).toDateString() === todayStr) today++;
+                    });
+                }
+                if (u.withdrawals) {
+                    Object.values(u.withdrawals).forEach(w => {
+                        if (w.status === 'pending') pending++;
+                        if (new Date(w.timestamp).toDateString() === todayStr) today++;
+                    });
+                }
+                if (u.kyc && u.kyc.status === 'pending') pending++;
+            });
+
+            document.getElementById('s-users').textContent = keys.length;
+            document.getElementById('s-balance').textContent = '$' + balance.toFixed(0);
+            document.getElementById('s-pending').textContent = pending;
+            document.getElementById('s-today').textContent = today;
+        });
+    }
+
+    // ====== DEPOSITS ======
+    function loadDeposits() {
+        const body = document.getElementById('deposits-body');
+        db.ref('users').once('value').then(snap => {
+            const users = snap.val() || {};
+            let items = [];
+            Object.keys(users).forEach(uid => {
+                const u = users[uid];
+                if (u.deposits) {
+                    Object.keys(u.deposits).forEach(did => {
+                        const d = u.deposits[did];
+                        items.push({ id: did, uid, ...d, name: u.name || uid });
+                    });
+                }
+            });
+            items.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            if (!items.length) {
+                body.innerHTML = '<tr><td colspan="6" class="empty"><span class="icon">📭</span> ไม่มีรายการ</td></tr>';
+                return;
+            }
+
+            body.innerHTML = items.map(d => `
+                <tr>
+                    <td><strong>${d.name}</strong><br><span style="font-size:0.6rem;color:#64748b;">${d.uid}</span></td>
+                    <td style="color:#22c55e;font-weight:bold;">$${fmtNum(d.amount)}</td>
+                    <td style="font-size:0.6rem;word-break:break-all;">${d.txid || '-'}</td>
+                    <td style="font-size:0.6rem;">${fmtDate(d.timestamp)}</td>
+                    <td>${badge(d.status)}</td>
+                    <td>
+                        <div style="display:flex;gap:2px;flex-wrap:wrap;">
+                            ${d.status === 'pending' ? `
+                                <button class="action-btn approve" onclick="approveDeposit('${d.uid}','${d.id}')">✅</button>
+                                <button class="action-btn reject" onclick="rejectDeposit('${d.uid}','${d.id}')">❌</button>
+                            ` : ''}
+                            <button class="action-btn edit" onclick="editDeposit('${d.uid}','${d.id}')">✏️</button>
+                            <button class="action-btn delete" onclick="deleteDeposit('${d.uid}','${d.id}')">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        });
+    }
+
+    // ====== WITHDRAWALS ======
+    function loadWithdrawals() {
+        const body = document.getElementById('withdrawals-body');
+        db.ref('users').once('value').then(snap => {
+            const users = snap.val() || {};
+            let items = [];
+            Object.keys(users).forEach(uid => {
+                const u = users[uid];
+                if (u.withdrawals) {
+                    Object.keys(u.withdrawals).forEach(wid => {
+                        const w = u.withdrawals[wid];
+                        items.push({ id: wid, uid, ...w, name: u.name || uid });
+                    });
+                }
+            });
+            items.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            if (!items.length) {
+                body.innerHTML = '<tr><td colspan="6" class="empty"><span class="icon">📭</span> ไม่มีรายการ</td></tr>';
+                return;
+            }
+
+            body.innerHTML = items.map(w => `
+                <tr>
+                    <td><strong>${w.name}</strong><br><span style="font-size:0.6rem;color:#64748b;">${w.uid}</span></td>
+                    <td style="color:#ef4444;font-weight:bold;">$${fmtNum(w.amount)}</td>
+                    <td style="font-size:0.6rem;word-break:break-all;">${w.address || '-'}</td>
+                    <td style="font-size:0.6rem;">${fmtDate(w.timestamp)}</td>
+                    <td>${badge(w.status)}</td>
+                    <td>
+                        <div style="display:flex;gap:2px;flex-wrap:wrap;">
+                            ${w.status === 'pending' ? `
+                                <button class="action-btn approve" onclick="approveWithdraw('${w.uid}','${w.id}','${w.amount}')">✅</button>
+                                <button class="action-btn reject" onclick="rejectWithdraw('${w.uid}','${w.id}')">❌</button>
+                            ` : ''}
+                            <button class="action-btn edit" onclick="editWithdraw('${w.uid}','${w.id}')">✏️</button>
+                            <button class="action-btn delete" onclick="deleteWithdraw('${w.uid}','${w.id}')">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        });
+    }
+
+    // ====== KYC ======
+    function loadKYC() {
+        const body = document.getElementById('kyc-body');
+        db.ref('users').once('value').then(snap => {
+            const users = snap.val() || {};
+            let items = [];
+            Object.keys(users).forEach(uid => {
+                const u = users[uid];
+                if (u.kyc) {
+                    items.push({ uid, ...u.kyc, name: u.name || uid });
+                }
+            });
+            items.sort((a,b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+
+            if (!items.length) {
+                body.innerHTML = '<tr><td colspan="7" class="empty"><span class="icon">📭</span> ไม่มีรายการ</td></tr>';
+                return;
+            }
+
+            body.innerHTML = items.map(k => `
+                <tr>
+                    <td><strong>${k.name}</strong><br><span style="font-size:0.6rem;color:#64748b;">${k.uid}</span></td>
+                    <td>${k.fullname || '-'}</td>
+                    <td>${k.country || '-'}</td>
+                    <td>${k.phone || '-'}</td>
+                    <td style="font-size:0.6rem;">${fmtDate(k.submittedAt)}</td>
+                    <td>${badge(k.status)}</td>
+                    <td>
+                        <div style="display:flex;gap:2px;flex-wrap:wrap;">
+                            ${k.status === 'pending' ? `
+                                <button class="action-btn view" onclick="viewKYC('${k.uid}')">👁️</button>
+                                <button class="action-btn approve" onclick="approveKYC('${k.uid}')">✅</button>
+                                <button class="action-btn reject" onclick="rejectKYC('${k.uid}')">❌</button>
+                            ` : ''}
+                            <button class="action-btn edit" onclick="editKYC('${k.uid}')">✏️</button>
+                            <button class="action-btn delete" onclick="deleteKYC('${k.uid}')">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        });
+    }
+
+    // ====== USERS ======
+    function loadUsers() {
+        const body = document.getElementById('users-body');
+        db.ref('users').once('value').then(snap => {
+            const users = snap.val() || {};
+            const keys = Object.keys(users);
+
+            if (!keys.length) {
+                body.innerHTML = '<tr><td colspan="6" class="empty"><span class="icon">👤</span> ไม่มีข้อมูล</td></tr>';
+                return;
+            }
+
+            let html = '';
+            keys.forEach(uid => {
+                const u = users[uid];
+                const kycStatus = u.kyc?.status || 'none';
+                const trades = u.orders ? Object.keys(u.orders).length : 0;
+                html += `
+                    <tr>
+                        <td><strong>${uid}</strong></td>
+                        <td>${u.name || '-'}</td>
+                        <td style="color:#38bdf8;font-weight:bold;">$${fmtNum(u.balance)}</td>
+                        <td>${badge(kycStatus)}</td>
+                        <td>${trades}</td>
+                        <td>
+                            <div style="display:flex;gap:2px;flex-wrap:wrap;">
+                                <button class="action-btn view" onclick="viewUser('${uid}')">👁️</button>
+                                <button class="action-btn edit" onclick="editUser('${uid}')">✏️</button>
+                                <button class="action-btn delete" onclick="deleteUser('${uid}')">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            body.innerHTML = html;
+        });
+    }
+
+    // ============================================================
+    // 🔥 ACTION: APPROVE / REJECT
+    // ============================================================
+
+    window.approveDeposit = async function(uid, did) {
+        if (!confirm(`✅ อนุมัติการฝากเงินของ ${uid}?`)) return;
+        try {
+            await db.ref(`users/${uid}/deposits/${did}`).update({ status: 'approved' });
+            const d = await db.ref(`users/${uid}/deposits/${did}`).once('value');
+            const data = d.val();
+            if (data) {
+                const b = await db.ref(`users/${uid}/balance`).once('value');
+                await db.ref(`users/${uid}/balance`).set((b.val() || 0) + data.amount);
+            }
+            showToast('✅ อนุมัติการฝากเงินแล้ว', 'success');
+            refreshAll();
+        } catch(e) { showToast('❌ ' + e.message, 'error'); }
+    };
+
+    window.rejectDeposit = async function(uid, did) {
+        if (!confirm(`❌ ปฏิเสธการฝากเงินของ ${uid}?`)) return;
+        try {
+            await db.ref(`users/${uid}/deposits/${did}`).update({ status: 'rejected' });
+            showToast('❌ ปฏิเสธการฝากเงินแล้ว', 'success');
+            refreshAll();
+        } catch(e) { showToast('❌ ' + e.message, 'error'); }
+    };
+
+    window.approveWithdraw = async function(uid, wid) {
+        if (!confirm(`✅ อนุมัติการถอนเงินของ ${uid}?`)) return;
+        try {
+            await db.ref(`users/${uid}/withdrawals/${wid}`).update({ status: 'approved' });
+            showToast('✅ อนุมัติการถอนเงินแล้ว', 'success');
+            refreshAll();
+        } catch(e) { showToast('❌ ' + e.message, 'error'); }
+    };
+
+    window.rejectWithdraw = async function(uid, wid) {
+        if (!confirm(`❌ ปฏิเสธการถอนเงินของ ${uid}?`)) return;
+        try {
+            const w = await db.ref(`users/${uid}/withdrawals/${wid}`).once('value');
+            const data = w.val();
+            await db.ref(`users/${uid}/withdrawals/${wid}`).update({ status: 'rejected' });
+            if (data) {
+                const b = await db.ref(`users/${uid}/balance`).once('value');
+                await db.ref(`users/${uid}/balance`).set((b.val() || 0) + data.amount);
+            }
+            showToast('❌ ปฏิเสธการถอนเงินแล้ว (คืนเงิน)', 'success');
+            refreshAll();
+        } catch(e) { showToast('❌ ' + e.message, 'error'); }
+    };
+
+    window.approveKYC = async function(uid) {
+        if (!confirm(`✅ อนุมัติ KYC ของ ${uid}?`)) return;
+        try {
+            await db.ref(`users/${uid}/kyc`).update({ status: 'verified' });
+            showToast('✅ อนุมัติ KYC แล้ว', 'success');
+            refreshAll();
+        } catch(e) { showToast('❌ ' + e.message, 'error'); }
+    };
+
+    window.rejectKYC = async function(uid) {
+        if (!confirm(`❌ ปฏิเสธ KYC ของ ${uid}?`)) return;
+        try {
+            await db.ref(`users/${uid}/kyc`).update({ status: 'rejected' });
+            showToast('❌ ปฏิเสธ KYC แล้ว', 'success');
+            refreshAll();
+        } catch(e) { showToast('❌ ' + e.message, 'error'); }
+    };
+
+    window.viewKYC = function(uid) {
+        db.ref(`users/${uid}/kyc`).once('value').then(s => {
+            const d = s.val();
+            if (d) {
+                alert(
+                    `📋 ข้อมูล KYC ของ ${uid}\n\n` +
+                    `👤 ชื่อ: ${d.fullname || '-'}\n` +
+                    `🌍 ประเทศ: ${d.country || '-'}\n` +
+                    `📱 เบอร์: ${d.phone || '-'}\n` +
+                    `🎂 วันเกิด: ${d.dob || '-'}\n` +
+                    `📧 อีเมล: ${d.email || '-'}\n` +
+                    `📅 ส่งเมื่อ: ${fmtDate(d.submittedAt)}`
+                );
+            }
+        });
+    };
+
+    window.viewUser = function(uid) {
+        db.ref(`users/${uid}`).once('value').then(s => {
+            const d = s.val() || {};
+            alert(
+                `👤 ข้อมูลผู้ใช้: ${uid}\n\n` +
+                `📛 ชื่อ: ${d.name || '-'}\n` +
+                `💰 ยอดเงิน: $${fmtNum(d.balance)}\n` +
+                `🛡️ KYC: ${d.kyc?.status || 'ยังไม่ยืนยัน'}\n` +
+                `📊 เทรด: ${d.orders ? Object.keys(d.orders).length : 0} รายการ`
+            );
+        });
+    };
+
+    // ============================================================
+    // ✏️ EDIT FUNCTIONS
+    // ============================================================
+
+    // --- EDIT DEPOSIT ---
+    window.editDeposit = function(uid, did) {
+        db.ref(`users/${uid}/deposits/${did}`).once('value').then(s => {
+            const d = s.val();
+            if (!d) return;
+            editTarget = { path: `users/${uid}/deposits/${did}`, data: d, type: 'deposit' };
+
+            const bodyHtml = `
+                <div class="input-group">
+                    <label>💰 จำนวนเงิน</label>
+                    <input type="number" id="edit-amount" value="${d.amount || 0}" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label>📝 TXID</label>
+                    <input type="text" id="edit-txid" value="${d.txid || ''}">
+                </div>
+                <div class="input-group">
+                    <label>📌 สถานะ</label>
+                    <select id="edit-status">
+                        <option value="pending" ${d.status === 'pending' ? 'selected' : ''}>⏳ รออนุมัติ</option>
+                        <option value="approved" ${d.status === 'approved' ? 'selected' : ''}>✅ อนุมัติ</option>
+                        <option value="rejected" ${d.status === 'rejected' ? 'selected' : ''}>❌ ปฏิเสธ</option>
+                    </select>
+                </div>
+                <div style="color:#94a3b8;font-size:0.7rem;margin-top:6px;">
+                    👤 ผู้ใช้: ${uid}
+                </div>
+            `;
+
+            openModal('✏️ แก้ไขรายการฝากเงิน', bodyHtml);
+            document.getElementById('btn-save-edit').onclick = saveEditDeposit;
+        });
+    };
+
+    async function saveEditDeposit() {
+        const amount = parseFloat(document.getElementById('edit-amount').value);
+        const txid = document.getElementById('edit-txid').value.trim();
+        const status = document.getElementById('edit-status').value;
+
+        if (isNaN(amount) || amount <= 0) {
+            showToast('⚠️ กรุณากรอกจำนวนเงินที่ถูกต้อง', 'error');
+            return;
+        }
+
+        if (!confirm(`💾 บันทึกการแก้ไข?`)) return;
+
+        try {
+            await db.ref(editTarget.path).update({
+                amount: amount,
+                txid: txid || '-',
+                status: status
+            });
+
+            // ถ้าเปลี่ยนเป็น approved และยังไม่ได้บวกเงิน
+            if (status === 'approved' && editTarget.data.status !== 'approved') {
+                const b = await db.ref(`users/${editTarget.path.split('/')[1]}/balance`).once('value');
+                await db.ref(`users/${editTarget.path.split('/')[1]}/balance`).set((b.val() || 0) + amount);
+            }
+
+            // ถ้าเปลี่ยนเป็น rejected และเคยเป็น approved ต้องหักเงินคืน
+            if (status === 'rejected' && editTarget.data.status === 'approved') {
+                const b = await db.ref(`users/${editTarget.path.split('/')[1]}/balance`).once('value');
+                await db.ref(`users/${editTarget.path.split('/')[1]}/balance`).set(Math.max(0, (b.val() || 0) - editTarget.data.amount));
+            }
+
+            showToast('✅ บันทึกการแก้ไขแล้ว', 'success');
+            closeModal();
+            refreshAll();
+        } catch(e) { showToast('❌ ' + e.message, 'error'); }
+    }
+
+    // --- EDIT WITHDRAW ---
+    window.editWithdraw = function(uid, wid) {
+        db.ref(`users/${uid}/withdrawals/${wid}`).once('value').then(s => {
+            const w = s.val();
+            if (!w) return;
+            editTarget = { path: `users/${uid}/withdrawals/${wid}`, data: w, type: 'withdraw' };
+
+            const bodyHtml = `
+                <div class="input-group">
+                    <label>💰 จำนวนเงิน</label>
+                    <input type="number" id="edit-amount" value="${w.amount || 0}" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label>📮 ที่อยู่รับเงิน</label>
+                    <input type="text" id="edit-address" value="${w.address || ''}">
+                </div>
+                <div class="input-group">
+                    <label>📌 สถานะ</label>
+                    <select id="edit-status">
+                        <option value="pending" ${w.status === 'pending' ? 'selected' : ''}>⏳ รออนุมัติ</option>
+                        <option value="approved" ${w.status === 'approved' ? 'selected' : ''}>✅ อนุมัติ</option>
+                        <option value="rejected" ${w.status === 'rejected' ? 'selected' : ''}>❌ ปฏิเสธ</option>
+                    </select>
+                </div>
+                <div style="color:#94a3b8;font-size:0.7rem;margin-top:6px;">
+                    👤 ผู้ใช้: ${uid}
+                </div>
+            `;
+
+            openModal('✏️ แก้ไขรายการถอนเงิน', bodyHtml);
+            document.getElementById('btn-save-edit').onclick = saveEditWithdraw;
+        });
+    };
+
+    async function saveEditWithdraw() {
+        const amount = parseFloat(document.getElementById('edit-amount').value);
+        const address = document.getElementById('edit-address').value.trim();
+        const status = document.getElementById('edit-status').value;
+
+        if (isNaN(amount) || amount <= 0) {
+            showToast('⚠️ กรุณากรอกจำนวนเงินที่ถูกต้อง', 'error');
+            return;
+        }
+
+        if (!confirm(`💾 บันทึกการแก้ไข?`)) return;
+
+        try {
+            await db.ref(editTarget.path).update({
+                amount: amount,
+                address: address || '-',
+                status: status
+            });
+
+            // ถ้าเปลี่ยนเป็น rejected และเคยเป็น approved ต้องคืนเงิน
+            if (status === 'rejected' && editTarget.data.status === 'approved') {
+                const b = await db.ref(`users/${editTarget.path.split('/')[1]}/balance`).once('value');
+                await db.ref(`users/${editTarget.path.split('/')[1]}/balance`).set((b.val() || 0) + editTarget.data.amount);
+            }
+
+            showToast('✅ บันทึกการแก้ไขแล้ว', 'success');
+            closeModal();
+            refreshAll();
+        } catch(e) { showToast('❌ ' + e.message, 'error'); }
+    }
+
+    // --- EDIT KYC ---
+    window.editKYC = function(uid) {
+        db.ref(`users/${uid}/kyc`).once('value').then(s => {
+            const k = s.val();
+            if (!k) return;
+            editTarget = { path: `users/${uid}/kyc`, data: k, type: 'kyc' };
+
+            const bodyHtml = `
+                <div class="input-group">
+                    <label>👤 ชื่อ-นามสกุล</label>
+                    <input type="text" id="edit-fullname" value="${k.fullname || ''}">
+                </div>
+                <div class="input-group">
+                    <label>🌍 ประเทศ</label>
+                    <input type="text" id="edit-country" value="${k.country || ''}">
+                </div>
+                <div class="input-group">
+                    <label>📱 เบอร์โทร</label>
+                    <input type="text" id="edit-phone" value="${k.phone || ''}">
+                </div>
+                <div class="input-group">
+                    <label>📌 สถานะ</label>
+                    <select id="edit-status">
+                        <option value="pending" ${k.status === 'pending' ? 'selected' : ''}>⏳ รออนุมัติ</option>
+                        <option value="verified" ${k.status === 'verified' ? 'selected' : ''}>✅ ยืนยันแล้ว</option>
+                        <option value="rejected" ${k.status === 'rejected' ? 'selected' : ''}>❌ ปฏิเสธ</option>
+                    </select>
+                </div>
+                <div style="color:#94a3b8;font-size:0.7rem;margin-top:6px;">
+                    👤 ผู้ใช้: ${uid}
+                </div>
+            `;
+
+            openModal('✏️ แก้ไขข้อมูล KYC', bodyHtml);
+            document.getElementById('btn-save-edit').onclick = saveEditKYC;
+        });
+    };
+
+    async function saveEditKYC() {
+        const fullname = document.getElementById('edit-fullname').value.trim();
+        const country = document.getElementById('edit-country').value.trim();
+        const phone = document.getElementById('edit-phone').value.trim();
+        const status = document.getElementById('edit-status').value;
+
+        if (!fullname) {
+            showToast('⚠️ กรุณากรอกชื่อ-นามสกุล', 'error');
+            return;
+        }
+
+        if (!confirm(`💾 บันทึกการแก้ไข?`)) return;
+
+        try {
+            await db.ref(editTarget.path).update({
+                fullname: fullname,
+                country: country || '-',
+                phone: phone || '-',
+                status: status
+            });
+
+            showToast('✅ บันทึกการแก้ไข KYC แล้ว', 'success');
+            closeModal();
+            refreshAll();
+        } catch(e) { showToast('❌ ' + e.message, 'error'); }
+    }
+
+    // --- EDIT USER ---
+    window.editUser = function(uid) {
+        db.ref(`users/${uid}`).once('value').then(s => {
+            const u = s.val() || {};
+            editTarget = { path: `users/${uid}`, data: u, type: 'user' };
+
+            const bodyHtml = `
+                <div class="input-group">
+                    <label>📛 ชื่อผู้ใช้</label>
+                    <input type="text" id="edit-name" value="${u.name || ''}">
+                </div>
+                <div class="input-group">
+                    <label>💰 ยอดเงิน</label>
+                    <input type="number" id="edit-balance" value="${u.balance || 0}" step="0.01">
+                </div>
+                <div style="color:#94a3b8;font-size:0.7rem;margin-top:6px;">
+                    🆔 User ID: ${uid}
+                </div>
+            `;
+
+            openModal('✏️ แก้ไขข้อมูลผู้ใช้', bodyHtml);
+            document.getElementById('btn-save-edit').onclick = saveEditUser;
+        });
+    };
+
+    async function saveEditUser() {
+        const name = document.getElementById('edit-name').value.trim();
+        const balance = parseFloat(document.getElementById('edit-balance').value);
+
+        if (isNaN(balance) || balance < 0) {
+            showToast('⚠️ กรุณากรอกยอดเงินที่ถูกต้อง', 'error');
+            return;
+        }
+
+        if (!confirm(`💾 บันทึกการแก้ไข?`)) return;
+
+        try {
+            const updateData = {};
+            if (name) updateData.name = name;
+            updateData.balance = balance;
+            await db.ref(editTarget.path).update(updateData);
+
+            showToast('✅ บันทึกข้อมูลผู้ใช้แล้ว', 'success');
+            closeModal();
+            refreshAll();
+        } catch(e) { showToast('❌ ' + e.message, 'error'); }
+    }
+
+    // ============================================================
+    // 🗑️ DELETE FUNCTIONS (ลบออกจาก Firebase จริง!)
+    // ============================================================
+
+    window.deleteDeposit = async function(uid, did) {
+        if (!confirm(`⚠️ ลบรายการฝากเงินของ ${uid}?\n\n❗ การกระทำนี้ไม่สามารถย้อนกลับได้!`)) return;
+        try {
+            await db.ref(`users/${uid}/deposits/${did}`).remove();
+            showToast(`🗑️ ลบรายการฝากเงินของ ${uid} แล้ว`, 'success');
+            refreshAll();
+        } catch(e) { showToast('❌ ' + e.message, 'error'); }
+    };
+
+    window.deleteWithdraw = async function(uid, wid) {
+        if (!confirm(`⚠️ ลบรายการถอนเงินของ ${uid}?\n\n❗ การกระทำนี้ไม่สามารถย้อนกลับได้!`)) return;
+        try {
+            await db.ref(`users/${uid}/withdrawals/${wid}`).remove();
+            showToast(`🗑️ ลบรายการถอนเงินของ ${uid} แล้ว`, 'success');
+            refreshAll();
+        } catch(e) { showToast('❌ ' + e.message, 'error'); }
+    };
+
+    window.deleteKYC = async function(uid) {
+        if (!confirm(`⚠️ ลบข้อมูล KYC ของ ${uid}?\n\n❗ การกระทำนี้ไม่สามารถย้อนกลับได้!`)) return;
+        try {
+            await db.ref(`users/${uid}/kyc`).remove();
+            showToast(`🗑️ ลบข้อมูล KYC ของ ${uid} แล้ว`, 'success');
+            refreshAll();
+        } catch(e) { showToast('❌ ' + e.message, 'error'); }
+    };
+
+    window.deleteUser = async function(uid) {
+        if (!confirm(`⚠️ ลบผู้ใช้ ${uid} ทั้งหมด?\n\n❗ การกระทำนี้ไม่สามารถย้อนกลับได้!`)) return;
+        try {
+            await db.ref(`users/${uid}`).remove();
+            showToast(`🗑️ ลบผู้ใช้ ${uid} แล้ว`, 'success');
+            refreshAll();
+        } catch(e) { showToast('❌ ' + e.message, 'error'); }
+    };
+
+    // ============================================================
+    // REFRESH ALL
+    // ============================================================
+    function refreshAll() {
+        loadStats();
+        loadDeposits();
+        loadWithdrawals();
+        loadKYC();
+        loadUsers();
+    }
+
+    // ============================================================
+    // START
+    // ============================================================
+    refreshAll();
+    setInterval(refreshAll, 15000);
+
+    console.log('✅ Admin Ready! (มี ลบ/แก้ไข)');
+    console.log('🗑️ กดปุ่มแดงเพื่อลบข้อมูลออกจาก Firebase');
+    console.log('✏️ กดปุ่มเหลืองเพื่อแก้ไขข้อมูล');
+});
+</script>
+</body>
+</html>

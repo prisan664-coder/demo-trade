@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MiTrade - Profile</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
+            background: #0f172a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .mobile-container {
+            width: 100%;
+            max-width: 412px;
+            height: 100vh;
+            max-height: 844px;
+            background-color: #121824;
+            color: #ffffff;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            border-radius: 36px;
+            border: 8px solid #1e293b;
+        }
+
+        header {
+            background: rgba(24, 119, 242, 0.95);
+            backdrop-filter: blur(10px);
+            color: #ffffff;
+            text-align: center;
+            padding: 14px 12px;
+            box-shadow: 0 2px 10px rgba(24, 119, 242, 0.2);
+            z-index: 10;
+        }
+
+        header h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        nav {
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            z-index: 9;
+        }
+
+        nav ul {
+            display: flex;
+            justify-content: space-around;
+            list-style: none;
+            padding: 8px 6px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.82rem;
+            padding: 6px 12px;
+            border-radius: 18px;
+            display: inline-block;
+        }
+
+        nav ul li a.active {
+            background: #1877f2;
+            color: #ffffff;
+        }
+
+        main {
+            padding: 12px;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Profile Header */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 14px;
+            border: 1px solid #334155;
+        }
+
+        .avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #1877f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .profile-info h2 {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .profile-info .sub {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .profile-info .balance {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 14px;
+            border: 1px solid #334155;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #94a3b8;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-title .badge {
+            font-size: 0.6rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: #22c55e;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .section-title .badge-pending {
+            background: #f59e0b;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #fff;
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: #1877f2;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #1a6ad4;
+        }
+
+        .btn-success {
+            background: #22c55e;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #16a34a;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #dc2626;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+        }
+
+        .btn-warning:hover:not(:disabled) {
+            background: #d97706;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #334155;
+            color: #94a3b8;
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            border-color: #38bdf8;
+            color: #38bdf8;
+        }
+
+        .row-btns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .input-group label {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .input-group input,
+        .input-group select {
+            background: #121824;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: #ffffff;
+            font-size: 0.9rem;
+            outline: none;
+            width: 100%;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            border-color: #38bdf8;
+        }
+
+        .input-group input::placeholder {
+            color: #475569;
+        }
+
+        .input-group select option {
+            background: #1e293b;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 20px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 14px;
+            text-align: center;
+            color: #38bdf8;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            cursor: pointer;
+            float: right;
+        }
+
+        .modal-close:hover {
+            color: #fff;
+        }
+
+        .qr-placeholder {
+            background: #121824;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 2px dashed #334155;
+            margin: 10px 0;
+        }
+
+        .qr-placeholder img {
+            max-width: 180px;
+            width: 100%;
+            height: auto;
+        }
+
+        .qr-placeholder .qr-text {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 8px;
+        }
+
+        .status-verified {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid #22c55e;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            color: #22c55e;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid #f59e0b;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            color: #f59e0b;
+            font-weight: bold;
+        }
+
+        .status-rejected {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid #ef4444;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #334155;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #121824;
+        }
+
+        .file-upload-area:hover {
+            border-color: #38bdf8;
+        }
+
+        .file-upload-area input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-area .preview-img {
+            max-width: 100%;
+            max-height: 120px;
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: bold;
+            z-index: 200;
+            display: none;
+            max-width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .toast.show {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        .toast-success {
+            border-color: #22c55e;
+        }
+
+        .toast-error {
+            border-color: #ef4444;
+        }
+
+        .toast-warning {
+            border-color: #f59e0b;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            font-size: 0.75rem;
+            color: #ffffff;
+            background: #1877f2;
+            margin-top: auto;
+        }
+
+        @media (max-width: 480px) {
+
+            html,
+            body {
+                padding: 0;
+                background: #121824;
+            }
+
+            .mobile-container {
+                max-width: 100%;
+                height: 100vh;
+                border-radius: 0;
+                border: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="mobile-container">
+        <header>
+            <h1>MiTrade - Profile</h1>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="home.html">🏠 Home</a></li>
+                <li><a href="history.html" class="active">📜 History</a></li>
+                <li><a href="index.html">ℹ️ Admin</a></li>
+                <li><a href="profile.html">⚙️ profile</a></li>
+            </ul>
+        </nav>
+
+        <main>
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="avatar">👤</div>
+                <div class="profile-info">
+                    <h2 id="display-name">MiTrade User</h2>
+                    <span class="sub" id="display-id">ID: #MITRADE001</span>
+                    <div class="balance" id="profile-balance">💰 $0.00 USD</div>
+                </div>
+            </div>
+
+            <!-- Deposit & Withdraw -->
+            <div class="section-card">
+                <div class="section-title">💰 การเงิน</div>
+                <div class="row-btns">
+                    <button class="btn btn-success" id="btn-deposit">💳 ฝากเงิน</button>
+                    <button class="btn btn-danger" id="btn-withdraw">💸 ถอนเงิน</button>
+                </div>
+            </div>
+
+            <!-- KYC Verification -->
+            <div class="section-card">
+                <div class="section-title">
+                    🛡️ ยืนยันตัวตน (KYC)
+                    <span class="badge" id="kyc-badge" style="display:none;">✅ ยืนยันแล้ว</span>
+                    <span class="badge badge-pending" id="kyc-pending-badge" style="display:none;">⏳ รออนุมัติ</span>
+                </div>
+                <div id="kyc-status-area">
+                    <button class="btn btn-primary" id="btn-kyc">📸 ยืนยันตัวตน</button>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="section-card">
+                <div class="section-title">🔗 ลิงก์ด่วน</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <a href="https://www.binance.com" target="_blank"
+                        style="color:#38bdf8;font-size:0.8rem;text-decoration:none;background:#121824;padding:6px 12px;border-radius:8px;border:1px solid #334155;">
+                        🔗 Binance
+                    </a>
+                    <a href="https://www.binance.com/en/support" target="_blank"
+                        style="color:#38bdf8;font-size:0.8rem;text-decoration:none;background:#121824;padding:6px 12px;border-radius:8px;border:1px solid #334155;">
+                        📞 Support
+                    </a>
+                </div>
+            </div>
+        </main>
+
+        <!-- ============ MODAL: DEPOSIT ============ -->
+        <div class="modal-overlay" id="modal-deposit">
+            <div class="modal-card">
+                <button class="modal-close" onclick="closeModal('modal-deposit')">✕</button>
+                <div class="modal-title">💳 ฝากเงิน</div>
+
+                <div class="qr-placeholder">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=binance://deposit?address=0x1234567890abcdef"
+                        alt="QR Code">
+                    <div class="qr-text">📱 สแกน QR เพื่อฝากเงินผ่าน Binance</div>
+                    <div style="margin-top:6px;font-size:0.7rem;color:#475569;">
+                        หรือใช้ลิงก์: <a href="https://www.binance.com/en/deposit" target="_blank"
+                            style="color:#38bdf8;">คลิกที่นี่</a>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>💵 จำนวนเงินที่ฝาก (USD)</label>
+                    <input type="number" id="deposit-amount" placeholder="0.00" min="1" step="0.01">
+                </div>
+
+                <div class="input-group">
+                    <label>📝 หมายเหตุ/รหัสธุรกรรม (Transaction ID)</label>
+                    <input type="text" id="deposit-txid" placeholder="กรอก TXID หรือหมายเลขอ้างอิง">
+                </div>
+
+                <button class="btn btn-success" id="btn-submit-deposit">📤 แจ้งฝากเงิน</button>
+                <button class="btn btn-outline" style="margin-top:6px;"
+                    onclick="closeModal('modal-deposit')">ยกเลิก</button>
+            </div>
+        </div>
+
+        <!-- ============ MODAL: WITHDRAW ============ -->
+        <div class="modal-overlay" id="modal-withdraw">
+            <div class="modal-card">
+                <button class="modal-close" onclick="closeModal('modal-withdraw')">✕</button>
+                <div class="modal-title">💸 ถอนเงิน</div>
+
+                <div class="input-group">
+                    <label>💰 ยอดเงินที่มีอยู่</label>
+                    <input type="text" id="withdraw-balance-display" readonly style="color:#38bdf8;font-weight:bold;">
+                </div>
+
+                <div class="input-group">
+                    <label>💵 จำนวนที่ต้องการถอน (USD)</label>
+                    <input type="number" id="withdraw-amount" placeholder="0.00" min="1" step="0.01">
+                </div>
+
+                <div class="input-group">
+                    <label>📮 ที่อยู่รับเงิน (Binance Wallet Address)</label>
+                    <input type="text" id="withdraw-address" placeholder="0x... หรือ binance wallet address">
+                </div>
+
+                <button class="btn btn-danger" id="btn-submit-withdraw">📤 ยืนยันการถอน</button>
+                <button class="btn btn-outline" style="margin-top:6px;"
+                    onclick="closeModal('modal-withdraw')">ยกเลิก</button>
+            </div>
+        </div>
+
+        <!-- ============ MODAL: KYC ============ -->
+        <div class="modal-overlay" id="modal-kyc">
+            <div class="modal-card">
+                <button class="modal-close" onclick="closeModal('modal-kyc')">✕</button>
+                <div class="modal-title">🛡️ ยืนยันตัวตน (KYC)</div>
+
+                <div
+                    style="background:#182232;padding:10px;border-radius:10px;margin-bottom:12px;font-size:0.8rem;color:#94a3b8;">
+                    ⚠️ กรุณาอัปโหลดรูปบัตรประชาชนให้ชัดเจน (หน้าและหลัง)
+                </div>
+
+                <!-- Front ID -->
+                <div class="input-group">
+                    <label>📸 รูปบัตรประชาชน (ด้านหน้า)</label>
+                    <div class="file-upload-area" id="upload-front">
+                        <span>📤 คลิกเพื่อเลือกรูป</span>
+                        <input type="file" id="kyc-front-file" accept="image/*" capture="environment">
+                        <img id="kyc-front-preview" class="preview-img" style="display:none;" alt="Preview">
+                    </div>
+                </div>
+
+                <!-- Back ID -->
+                <div class="input-group">
+                    <label>📸 รูปบัตรประชาชน (ด้านหลัง)</label>
+                    <div class="file-upload-area" id="upload-back">
+                        <span>📤 คลิกเพื่อเลือกรูป</span>
+                        <input type="file" id="kyc-back-file" accept="image/*" capture="environment">
+                        <img id="kyc-back-preview" class="preview-img" style="display:none;" alt="Preview">
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>👤 ชื่อ-นามสกุล</label>
+                        <input type="text" id="kyc-fullname" placeholder="สมชาย ใจดี">
+                    </div>
+                    <div class="input-group">
+                        <label>🌍 ประเทศ</label>
+                        <select id="kyc-country">
+                            <option value="TH">🇹🇭 ไทย</option>
+                            <option value="US">🇺🇸 สหรัฐอเมริกา</option>
+                            <option value="UK">🇬🇧 สหราชอาณาจักร</option>
+                            <option value="JP">🇯🇵 ญี่ปุ่น</option>
+                            <option value="KR">🇰🇷 เกาหลีใต้</option>
+                            <option value="SG">🇸🇬 สิงคโปร์</option>
+                            <option value="MY">🇲🇾 มาเลเซีย</option>
+                            <option value="VN">🇻🇳 เวียดนาม</option>
+                            <option value="LA">🇱🇦 ลาว</option>
+                            <option value="KH">🇰🇭 กัมพูชา</option>
+                            <option value="MM">🇲🇲 พม่า</option>
+                            <option value="ID">🇮🇩 อินโดนีเซีย</option>
+                            <option value="PH">🇵🇭 ฟิลิปปินส์</option>
+                            <option value="OTHER">🌏 อื่นๆ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>📱 เบอร์โทรศัพท์</label>
+                        <input type="tel" id="kyc-phone" placeholder="081-234-5678">
+                    </div>
+                    <div class="input-group">
+                        <label>🎂 วันเดือนปีเกิด</label>
+                        <input type="date" id="kyc-dob">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>📧 อีเมล</label>
+                    <input type="email" id="kyc-email" placeholder="example@email.com">
+                </div>
+
+                <button class="btn btn-primary" id="btn-submit-kyc">📤 ส่งข้อมูลยืนยันตัวตน</button>
+                <button class="btn btn-outline" style="margin-top:6px;"
+                    onclick="closeModal('modal-kyc')">ยกเลิก</button>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div class="toast" id="toast"></div>
+
+        <footer>
+            <p>&copy; 2026 สงวนลิขสิทธิ์</p>
+            <p>version 1.2: Mitrade Profile</p>
+        </footer>
+    </div>
+
+    <script type="module">
+        import {initializeApp} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import {
+            getDatabase,
+            ref,
+            onValue,
+            set,
+            push,
+            update,
+            get,
+            child
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import {
+            getStorage,
+            ref as storageRef,
+            uploadBytes,
+            getDownloadURL
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDCE_qqKanTTdVXYwBMBIfPu0M0Xy-kbX8",
+            authDomain: "hujai-web.firebaseapp.com",
+            databaseURL: "https://hujai-web-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "hujai-web",
+            storageBucket: "hujai-web.firebasestorage.app",
+            messagingSenderId: "827968973337",
+            appId: "1:827968973337:web:ae6ef630b59cf429575888",
+            measurementId: "G-XCF3TBNG8L"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const storage = getStorage(app);
+
+        // ============================================
+        // REFERENCES
+        // ============================================
+        const userRef = ref(db, 'users/demoUser');
+        const balanceRef = ref(db, 'users/demoUser/balance');
+        const depositsRef = ref(db, 'users/demoUser/deposits');
+        const withdrawalsRef = ref(db, 'users/demoUser/withdrawals');
+        const kycRef = ref(db, 'users/demoUser/kyc');
+
+        // ============================================
+        // DOM ELEMENTS
+        // ============================================
+        const balanceEl = document.getElementById('profile-balance');
+        const displayName = document.getElementById('display-name');
+        const displayId = document.getElementById('display-id');
+
+        // Toast
+        const toastEl = document.getElementById('toast');
+
+        // ============================================
+        // TOAST FUNCTION
+        // ============================================
+        function showToast(message, type = 'success') {
+            toastEl.textContent = message;
+            toastEl.className = `toast toast-${type}`;
+            toastEl.classList.add('show');
+            setTimeout(() => {
+                toastEl.classList.remove('show');
+            }, 4000);
+        }
+
+        // ============================================
+        // MODAL FUNCTIONS
+        // ============================================
+        window.closeModal = function (id) {
+            document.getElementById(id).style.display = 'none';
+        };
+
+        window.openModal = function (id) {
+            document.getElementById(id).style.display = 'flex';
+        };
+
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+
+        // ============================================
+        // LOAD BALANCE & PROFILE
+        // ============================================
+        onValue(balanceRef, (snapshot) => {
+            const val = snapshot.val() || 0;
+            balanceEl.textContent = `💰 $${Number(val).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD`;
+        });
+
+        onValue(userRef, (snapshot) => {
+            const data = snapshot.val() || {};
+            if (data.name) displayName.textContent = data.name;
+            if (data.userId) displayId.textContent = `ID: ${data.userId}`;
+        });
+
+        // ============================================
+        // DEPOSIT
+        // ============================================
+        document.getElementById('btn-deposit').addEventListener('click', () => {
+            openModal('modal-deposit');
+        });
+
+        document.getElementById('btn-submit-deposit').addEventListener('click', async () => {
+            const amount = parseFloat(document.getElementById('deposit-amount').value);
+            const txid = document.getElementById('deposit-txid').value.trim();
+
+            if (isNaN(amount) || amount <= 0) {
+                showToast('⚠️ กรุณากรอกจำนวนเงินที่ถูกต้อง', 'error');
+                return;
+            }
+
+            if (!txid) {
+                showToast('⚠️ กรุณากรอก Transaction ID', 'error');
+                return;
+            }
+
+            try {
+                const depositData = {
+                    amount: amount,
+                    txid: txid,
+                    status: 'pending',
+                    timestamp: new Date().toISOString(),
+                    method: 'binance_deposit'
+                };
+
+                await push(depositsRef, depositData);
+
+                // Notify admin (create notification)
+                const notifyRef = ref(db, 'admin/notifications');
+                await push(notifyRef, {
+                    type: 'deposit',
+                    userId: 'demoUser',
+                    amount: amount,
+                    txid: txid,
+                    timestamp: new Date().toISOString(),
+                    status: 'pending'
+                });
+
+                showToast('✅ แจ้งฝากเงินสำเร็จ! รอแอดมินตรวจสอบ', 'success');
+                document.getElementById('deposit-amount').value = '';
+                document.getElementById('deposit-txid').value = '';
+                closeModal('modal-deposit');
+
+            } catch (error) {
+                console.error('Deposit error:', error);
+                showToast('❌ เกิดข้อผิดพลาด กรุณาลองใหม่', 'error');
+            }
+        });
+
+        // ============================================
+        // WITHDRAW
+        // ============================================
+        document.getElementById('btn-withdraw').addEventListener('click', async () => {
+            const snapshot = await get(balanceRef);
+            const balance = snapshot.val() || 0;
+            document.getElementById('withdraw-balance-display').value = `$${Number(balance).toFixed(2)} USD`;
+            openModal('modal-withdraw');
+        });
+
+        document.getElementById('btn-submit-withdraw').addEventListener('click', async () => {
+            const amount = parseFloat(document.getElementById('withdraw-amount').value);
+            const address = document.getElementById('withdraw-address').value.trim();
+
+            if (isNaN(amount) || amount <= 0) {
+                showToast('⚠️ กรุณากรอกจำนวนเงินที่ถูกต้อง', 'error');
+                return;
+            }
+
+            if (!address) {
+                showToast('⚠️ กรุณากรอกที่อยู่รับเงิน', 'error');
+                return;
+            }
+
+            // Check balance
+            const snapshot = await get(balanceRef);
+            const balance = snapshot.val() || 0;
+
+            if (amount > balance) {
+                showToast('⚠️ ยอดเงินไม่เพียงพอ', 'error');
+                return;
+            }
+
+            try {
+                const withdrawData = {
+                    amount: amount,
+                    address: address,
+                    status: 'pending',
+                    timestamp: new Date().toISOString(),
+                    method: 'binance_withdraw'
+                };
+
+                await push(withdrawalsRef, withdrawData);
+
+                // Notify admin
+                const notifyRef = ref(db, 'admin/notifications');
+                await push(notifyRef, {
+                    type: 'withdraw',
+                    userId: 'demoUser',
+                    amount: amount,
+                    address: address,
+                    timestamp: new Date().toISOString(),
+                    status: 'pending'
+                });
+
+                showToast('✅ ส่งคำขอถอนเงินเรียบร้อย! รอแอดมินดำเนินการ', 'success');
+                document.getElementById('withdraw-amount').value = '';
+                document.getElementById('withdraw-address').value = '';
+                closeModal('modal-withdraw');
+
+            } catch (error) {
+                console.error('Withdraw error:', error);
+                showToast('❌ เกิดข้อผิดพลาด กรุณาลองใหม่', 'error');
+            }
+        });
+
+        // ============================================
+        // KYC VERIFICATION
+        // ============================================
+        let kycFrontFile = null;
+        let kycBackFile = null;
+        let kycFrontDataURL = null;
+        let kycBackDataURL = null;
+
+        // File upload handlers
+        document.getElementById('kyc-front-file').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                kycFrontFile = file;
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    kycFrontDataURL = event.target.result;
+                    const preview = document.getElementById('kyc-front-preview');
+                    preview.src = event.target.result;
+                    preview.style.display = 'block';
+                    document.querySelector('#upload-front span').textContent = '✅ เลือกรูปแล้ว';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('kyc-back-file').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                kycBackFile = file;
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    kycBackDataURL = event.target.result;
+                    const preview = document.getElementById('kyc-back-preview');
+                    preview.src = event.target.result;
+                    preview.style.display = 'block';
+                    document.querySelector('#upload-back span').textContent = '✅ เลือกรูปแล้ว';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Click upload areas to trigger file input
+        document.getElementById('upload-front').addEventListener('click', function () {
+            document.getElementById('kyc-front-file').click();
+        });
+
+        document.getElementById('upload-back').addEventListener('click', function () {
+            document.getElementById('kyc-back-file').click();
+        });
+
+        // Check KYC status on load
+        function checkKYCStatus() {
+            onValue(kycRef, (snapshot) => {
+                const data = snapshot.val();
+                const statusArea = document.getElementById('kyc-status-area');
+                const badge = document.getElementById('kyc-badge');
+                const pendingBadge = document.getElementById('kyc-pending-badge');
+                const btnKyc = document.getElementById('btn-kyc');
+
+                if (data) {
+                    if (data.status === 'verified') {
+                        statusArea.innerHTML = `
+                            <div class="status-verified">✅ ยืนยันตัวตนแล้ว</div>
+                            <div style="margin-top:8px;font-size:0.8rem;color:#94a3b8;">
+                                ชื่อ: ${data.fullname || '-'} | ${data.country || '-'}
+                            </div>
+                        `;
+                        badge.style.display = 'inline-block';
+                        pendingBadge.style.display = 'none';
+                        btnKyc.style.display = 'none';
+                        return;
+                    } else if (data.status === 'pending') {
+                        statusArea.innerHTML = `
+                            <div class="status-pending">⏳ กำลังรอการอนุมัติจากแอดมิน</div>
+                        `;
+                        pendingBadge.style.display = 'inline-block';
+                        badge.style.display = 'none';
+                        btnKyc.disabled = true;
+                        btnKyc.textContent = '⏳ กำลังรออนุมัติ...';
+                        return;
+                    } else if (data.status === 'rejected') {
+                        statusArea.innerHTML = `
+                            <div class="status-rejected">❌ ข้อมูลไม่ผ่านการตรวจสอบ กรุณาส่งใหม่</div>
+                        `;
+                        pendingBadge.style.display = 'none';
+                        badge.style.display = 'none';
+                        btnKyc.disabled = false;
+                        btnKyc.textContent = '📸 ยืนยันตัวตน';
+                        return;
+                    }
+                }
+
+                // No KYC data
+                badge.style.display = 'none';
+                pendingBadge.style.display = 'none';
+                btnKyc.disabled = false;
+                btnKyc.textContent = '📸 ยืนยันตัวตน';
+                statusArea.innerHTML = `
+                    <button class="btn btn-primary" id="btn-kyc">📸 ยืนยันตัวตน</button>
+                `;
+                // Re-bind event
+                document.getElementById('btn-kyc')?.addEventListener('click', () => {
+                    openModal('modal-kyc');
+                });
+            });
+        }
+
+        checkKYCStatus();
+
+        // Submit KYC
+        document.getElementById('btn-submit-kyc').addEventListener('click', async () => {
+            const fullname = document.getElementById('kyc-fullname').value.trim();
+            const country = document.getElementById('kyc-country').value;
+            const phone = document.getElementById('kyc-phone').value.trim();
+            const dob = document.getElementById('kyc-dob').value;
+            const email = document.getElementById('kyc-email').value.trim();
+
+            if (!fullname) {
+                showToast('⚠️ กรุณากรอกชื่อ-นามสกุล', 'error');
+                return;
+            }
+            if (!phone) {
+                showToast('⚠️ กรุณากรอกเบอร์โทรศัพท์', 'error');
+                return;
+            }
+            if (!dob) {
+                showToast('⚠️ กรุณาเลือกวันเดือนปีเกิด', 'error');
+                return;
+            }
+            if (!email) {
+                showToast('⚠️ กรุณากรอกอีเมล', 'error');
+                return;
+            }
+            if (!kycFrontFile || !kycBackFile) {
+                showToast('⚠️ กรุณาอัปโหลดรูปบัตรประชาชนทั้งหน้าและหลัง', 'error');
+                return;
+            }
+
+            try {
+                showToast('⏳ กำลังอัปโหลดข้อมูล...', 'warning');
+
+                // Upload images to Firebase Storage
+                const frontPath = `kyc/demoUser/front_${Date.now()}.jpg`;
+                const backPath = `kyc/demoUser/back_${Date.now()}.jpg`;
+
+                const frontRef = storageRef(storage, frontPath);
+                const backRef = storageRef(storage, backPath);
+
+                // Compress images before upload (resize to small)
+                const frontBlob = await compressImage(kycFrontFile, 800, 600);
+                const backBlob = await compressImage(kycBackFile, 800, 600);
+
+                const [frontSnapshot, backSnapshot] = await Promise.all([
+                    uploadBytes(frontRef, frontBlob),
+                    uploadBytes(backRef, backBlob)
+                ]);
+
+                const frontURL = await getDownloadURL(frontSnapshot.ref);
+                const backURL = await getDownloadURL(backSnapshot.ref);
+
+                // Calculate age from DOB
+                const birthDate = new Date(dob);
+                const today = new Date();
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const m = today.getMonth() - birthDate.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+
+                // Save KYC data to Firebase
+                const kycData = {
+                    fullname: fullname,
+                    country: country,
+                    phone: phone,
+                    dob: dob,
+                    age: age,
+                    email: email,
+                    frontImage: frontURL,
+                    backImage: backURL,
+                    status: 'pending',
+                    submittedAt: new Date().toISOString(),
+                    userId: 'demoUser'
+                };
+
+                await set(kycRef, kycData);
+
+                // Notify admin
+                const notifyRef = ref(db, 'admin/notifications');
+                await push(notifyRef, {
+                    type: 'kyc',
+                    userId: 'demoUser',
+                    fullname: fullname,
+                    timestamp: new Date().toISOString(),
+                    status: 'pending'
+                });
+
+                showToast('✅ ส่งข้อมูลยืนยันตัวตนสำเร็จ! รอแอดมินตรวจสอบ', 'success');
+                closeModal('modal-kyc');
+
+                // Refresh KYC status
+                checkKYCStatus();
+
+            } catch (error) {
+                console.error('KYC error:', error);
+                showToast('❌ เกิดข้อผิดพลาด: ' + error.message, 'error');
+            }
+        });
+
+        // ============================================
+        // COMPRESS IMAGE FUNCTION
+        // ============================================
+        function compressImage(file, maxWidth, maxHeight) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = new Image();
+                    img.onload = function () {
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > maxWidth) {
+                            height = (height * maxWidth) / width;
+                            width = maxWidth;
+                        }
+                        if (height > maxHeight) {
+                            width = (width * maxHeight) / height;
+                            height = maxHeight;
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        canvas.toBlob((blob) => {
+                            resolve(blob);
+                        }, 'image/jpeg', 0.7);
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // ============================================
+        // INIT: Open KYC modal from button
+        // ============================================
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'btn-kyc') {
+                openModal('modal-kyc');
+            }
+        });
+
+        console.log('✅ MiTrade Profile loaded!');
+        console.log('📸 KYC: อัปโหลดรูปบัตรประชาชน (ย่อขนาดอัตโนมัติ)');
+    </script>
+
+    <script = src="keep-protect.js" ></script>
+</body>
+
+</html>

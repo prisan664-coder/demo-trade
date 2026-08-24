@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MiTrade - 30s Trading</title>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
+            background: #0f172a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .mobile-container {
+            width: 100%;
+            max-width: 412px;
+            height: 100vh;
+            max-height: 844px;
+            background-color: #121824;
+            color: #ffffff;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            border-radius: 36px;
+            border: 8px solid #1e293b;
+        }
+
+        header {
+            background: rgba(24, 119, 242, 0.95);
+            backdrop-filter: blur(10px);
+            color: #ffffff;
+            text-align: center;
+            padding: 14px 12px;
+            box-shadow: 0 2px 10px rgba(24, 119, 242, 0.2);
+            z-index: 10;
+        }
+
+        
+        header h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        nav {
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            z-index: 9;
+        }
+
+        nav ul {
+            display: flex;
+            justify-content: space-around;
+            list-style: none;
+            padding: 8px 6px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.82rem;
+            padding: 6px 12px;
+            border-radius: 18px;
+            display: inline-block;
+        }
+
+        nav ul li a.active {
+            background: #1877f2;
+            color: #ffffff;
+        }
+
+        main {
+            padding: 12px;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .portfolio-card {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 12px;
+            border: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-item .label {
+            font-size: 0.72rem;
+            color: #94a3b8;
+        }
+
+        .stat-item .value {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+
+        .chart-wrapper {
+            background: #182232;
+            border-radius: 16px;
+            padding: 10px;
+            border: 1px solid #2a3a50;
+            position: relative;
+        }
+
+        .price-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .symbol {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+
+        .current-price {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .trade-timer-bar {
+            display: none;
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid #38bdf8;
+            border-radius: 12px;
+            padding: 8px 12px;
+            margin-top: 6px;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .market-card {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 10px;
+            border: 1px solid #334155;
+        }
+
+        .market-title {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+
+        .coin-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 90px;
+            overflow-y: auto;
+        }
+
+        .coin-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 10px;
+            background: #121824;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .coin-item.active {
+            border-color: #38bdf8;
+            background: #1a273a;
+        }
+
+        .coin-name {
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .coin-price {
+            font-size: 0.82rem;
+        }
+
+        .trade-input-card {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 12px;
+            border: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .trade-input-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .input-group {
+            display: flex;
+            position: relative;
+        }
+
+        .input-group input {
+            width: 100%;
+            background: #121824;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 10px 45px 10px 12px;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: bold;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: #38bdf8;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .quick-percent-btns {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+
+        .btn-percent {
+            background: #121824;
+            border: 1px solid #334155;
+            color: #38bdf8;
+            padding: 6px 0;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-percent:hover {
+            background: #1a273a;
+            border-color: #38bdf8;
+        }
+
+        .trade-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-trade {
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .btn-buy {
+            background: #22c55e;
+        }
+
+        .btn-sell {
+            background: #ef4444;
+        }
+
+        .btn-trade:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 20px;
+            width: 100%;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .modal-detail {
+            background: #121824;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        .modal-detail-row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-close-modal {
+            background: #1877f2;
+            color: #fff;
+            border: none;
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            font-size: 0.75rem;
+            color: #ffffff;
+            background: #1877f2;
+            margin-top: auto;
+        }
+
+        @media (max-width: 480px) {
+
+            html,
+            body {
+                padding: 0;
+                background: #121824;
+            }
+
+            .mobile-container {
+                max-width: 100%;
+                height: 100vh;
+                border-radius: 0;
+                border: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="mobile-container">
+        <header>
+            <h1>MiTrade - 30s Trading</h1>
+        </header>
+        <nav>
+            <ul>
+                <li><a href="home.html">🏠 Home</a></li>
+                <li><a href="history.html" class="active">📜 History</a></li>
+                <li><a href="index.html">ℹ️ Admin</a></li>
+                <li><a href="profile.html">⚙️ profile</a></li>
+            </ul>
+        </nav>
+
+        <main>
+            <div class="portfolio-card">
+                <div class="stat-item">
+                    <div class="label">Total USD Balance</div>
+                    <div class="value" id="demo-balance">$0.00 USD</div>
+                </div>
+                <div class="stat-item" style="text-align: right;">
+                    <div class="label">Payout Rate</div>
+                    <div class="value" style="color:#22c55e;">+85%</div>
+                </div>
+            </div>
+
+            <div class="chart-wrapper">
+                <div class="price-header">
+                    <span class="symbol" id="selected-symbol">📊 BTC/USDT</span>
+                    <span class="current-price" id="live-price">$95,000.00</span>
+                </div>
+                <canvas id="stockChart" height="130"></canvas>
+
+                <div class="trade-timer-bar" id="timer-bar">
+                    <span id="timer-type">🟢 BUYing BTC</span>
+                    <span id="timer-count" style="color:#f59e0b;">⏱️ 30s</span>
+                </div>
+            </div>
+
+            <div class="market-card">
+                <div class="market-title">🪙 Select Coin (Market List)</div>
+                <div class="coin-list" id="coin-list-container">
+                </div>
+            </div>
+
+            <div class="trade-input-card">
+                <div class="trade-input-header">
+                    <span>💵 Investment Amount (30s Trade)</span>
+                </div>
+                <div class="input-group">
+                    <input type="number" id="trade-amount" placeholder="0.00" value="100" min="1">
+                    <span class="currency-symbol">USD</span>
+                </div>
+                <div class="quick-percent-btns">
+                    <button class="btn-percent" onclick="window.setPercent(0.25)">25%</button>
+                    <button class="btn-percent" onclick="window.setPercent(0.50)">50%</button>
+                    <button class="btn-percent" onclick="window.setPercent(0.75)">75%</button>
+                    <button class="btn-percent" onclick="window.setPercent(1.00)">100%</button>
+                </div>
+            </div>
+
+            <div class="trade-actions">
+                <button class="btn-trade btn-buy" id="btn-buy">🟢 Buy (Higher 30s)</button>
+                <button class="btn-trade btn-sell" id="btn-sell">🔴 Sell (Lower 30s)</button>
+            </div>
+        </main>
+
+        <div class="modal-overlay" id="result-modal">
+            <div class="modal-card">
+                <div class="modal-title" id="modal-result-title">WIN! 🎉</div>
+                <div class="modal-detail">
+                    <div class="modal-detail-row">
+                        <span style="color:#94a3b8">Asset:</span>
+                        <strong id="res-symbol">BTC/USDT</strong>
+                    </div>
+                    <div class="modal-detail-row">
+                        <span style="color:#94a3b8">Entry Price:</span>
+                        <strong id="res-entry">$0.00</strong>
+                    </div>
+                    <div class="modal-detail-row">
+                        <span style="color:#94a3b8">Exit Price (30s):</span>
+                        <strong id="res-exit">$0.00</strong>
+                    </div>
+                    <div class="modal-detail-row">
+                        <span style="color:#94a3b8">Profit / Loss:</span>
+                        <strong id="res-payout" style="color:#22c55e;">+$0.00 USD</strong>
+                    </div>
+                </div>
+                <button class="btn-close-modal" id="btn-close-modal">OK</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 All Rights Reserved</p>
+            <p>Version 1.3: Mitrade 30s Trading</p>
+        </footer>
+    </div>
+
+    <script type="module">
+        import {initializeApp} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import {getDatabase, ref, onValue, set, push, runTransaction} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDCE_qqKanTTdVXYwBMBIfPu0M0Xy-kbX8",
+            authDomain: "hujai-web.firebaseapp.com",
+            databaseURL: "https://hujai-web-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "hujai-web",
+            storageBucket: "hujai-web.firebasestorage.app",
+            messagingSenderId: "827968973337",
+            appId: "1:827968973337:web:ae6ef630b59cf429575888",
+            measurementId: "G-XCF3TBNG8L"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const userBalanceRef = ref(db, 'users/demoUser/balance');
+        const userOrdersRef = ref(db, 'users/demoUser/orders');
+
+        const balanceEl = document.getElementById('demo-balance');
+        const tradeAmountInput = document.getElementById('trade-amount');
+        const btnBuy = document.getElementById('btn-buy');
+        const btnSell = document.getElementById('btn-sell');
+        const timerBar = document.getElementById('timer-bar');
+        const timerType = document.getElementById('timer-type');
+        const timerCount = document.getElementById('timer-count');
+
+        let currentBalanceUSD = 100000;
+        let isTrading = false;
+        let activeTimer = null;
+        let isFinishing = false;
+
+        // ============================================================
+        // 1. ฟังก์ชันสำหรับจัดการ localStorage (เก็บสถานะการเทรด)
+        // ============================================================
+        const TRADE_STORAGE_KEY = 'mitrade_pending_trade';
+
+        function savePendingTrade(data) {
+            if (data) {
+                localStorage.setItem(TRADE_STORAGE_KEY, JSON.stringify(data));
+            } else {
+                localStorage.removeItem(TRADE_STORAGE_KEY);
+            }
+        }
+
+        function getPendingTrade() {
+            const raw = localStorage.getItem(TRADE_STORAGE_KEY);
+            if (!raw) return null;
+            try {
+                return JSON.parse(raw);
+            } catch {
+                return null;
+            }
+        }
+
+        // ============================================================
+        // 2. ฟังก์ชันสำหรับตรวจสอบและกู้คืนการเทรดที่ค้างอยู่
+        // ============================================================
+        function checkAndRestorePendingTrade() {
+            const pending = getPendingTrade();
+            if (!pending) return;
+
+            const {type, entryPrice, amount, startTime, symbol} = pending;
+            const elapsed = (Date.now() - startTime) / 1000; // เวลาที่ผ่านไป (วินาที)
+            const remaining = Math.max(0, 30 - elapsed);
+
+            console.log(`🔄 พบการเทรดค้าง: ${type} ${symbol} เหลือเวลา ${remaining.toFixed(1)} วินาที`);
+
+            // ถ้าเวลาหมดแล้ว ให้จบการเทรดทันที
+            if (remaining <= 0) {
+                // ต้องรอให้ coin price โหลดเสร็จก่อน
+                const checkCoinReady = setInterval(() => {
+                    if (coins[symbol] && coins[symbol].price) {
+                        clearInterval(checkCoinReady);
+                        // ตั้งค่า selectedCoinKey ให้ตรงกับที่ค้างไว้
+                        selectedCoinKey = symbol;
+                        selectCoin(symbol);
+                        finishTrade(type, entryPrice, amount);
+                        savePendingTrade(null); // ล้าง localStorage
+                    }
+                }, 100);
+                return;
+            }
+
+            // ถ้ายังเหลือเวลา ให้กู้คืนสถานะ
+            isTrading = true;
+            btnBuy.disabled = true;
+            btnSell.disabled = true;
+
+            // ตั้งค่า selectedCoinKey
+            selectedCoinKey = symbol;
+            selectCoin(symbol);
+
+            // แสดง Timer Bar
+            timerBar.style.display = 'flex';
+            timerType.innerText = type === 'buy' ? `🟢 BUY ${symbol}` : `🔴 SELL ${symbol}`;
+            timerType.style.color = type === 'buy' ? '#22c55e' : '#ef4444';
+            timerCount.innerText = `⏱️ ${Math.ceil(remaining)}s`;
+
+            // สร้าง Timer ใหม่เพื่อนับเวลาต่อ
+            let timeLeft = Math.ceil(remaining);
+            activeTimer = setInterval(() => {
+                timeLeft--;
+                timerCount.innerText = `⏱️ ${timeLeft}s`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(activeTimer);
+                    activeTimer = null;
+                    savePendingTrade(null); // ล้าง localStorage
+                    finishTrade(type, entryPrice, amount);
+                }
+            }, 1000);
+        }
+
+        // ============================================================
+        // 3. ฟังก์ชันจัดการ Balance และ Coins (เหมือนเดิม)
+        // ============================================================
+
+        onValue(userBalanceRef, (snapshot) => {
+            const val = snapshot.val();
+            if (val === null) {
+                set(userBalanceRef, 100000);
+                currentBalanceUSD = 100000;
+            } else {
+                currentBalanceUSD = val;
+            }
+            balanceEl.innerText = `$${currentBalanceUSD.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD`;
+        });
+
+        window.setPercent = function (ratio) {
+            if (isTrading) {
+                alert('⚠️ กรุณารอการเทรดปัจจุบันให้เสร็จสิ้นก่อน');
+                return;
+            }
+            const calcAmount = (currentBalanceUSD * ratio).toFixed(2);
+            tradeAmountInput.value = calcAmount;
+        };
+
+        const coins = {
+            'BTC': {name: 'Bitcoin (BTC)', price: 95000, volatility: 250, trendState: 'up', trendCount: 0, history: Array(20).fill(95000)},
+            'ETH': {name: 'Ethereum (ETH)', price: 3400, volatility: 15, trendState: 'up', trendCount: 0, history: Array(20).fill(3400)},
+            'USDT': {name: 'Tether (USDT)', price: 1.00, volatility: 0.001, trendState: 'up', trendCount: 0, history: Array(20).fill(1.00)},
+            'BNB': {name: 'Binance Coin (BNB)', price: 650, volatility: 3, trendState: 'up', trendCount: 0, history: Array(20).fill(650)},
+            'USDC': {name: 'USD Coin (USDC)', price: 1.00, volatility: 0.001, trendState: 'up', trendCount: 0, history: Array(20).fill(1.00)},
+            'SOL': {name: 'Solana (SOL)', price: 190, volatility: 2, trendState: 'up', trendCount: 0, history: Array(20).fill(190)},
+            'TRX': {name: 'TRON (TRX)', price: 0.24, volatility: 0.002, trendState: 'up', trendCount: 0, history: Array(20).fill(0.24)},
+            'HYPE': {name: 'Hyperliquid (HYPE)', price: 80.00, volatility: 1.2, trendState: 'up', trendCount: 0, history: Array(20).fill(80.00)},
+            'DOGE': {name: 'Dogecoin (DOGE)', price: 0.26, volatility: 0.005, trendState: 'up', trendCount: 0, history: Array(20).fill(0.26)}
+        };
+
+        let selectedCoinKey = 'BTC';
+
+        const priceEl = document.getElementById('live-price');
+        const symbolEl = document.getElementById('selected-symbol');
+        const listContainer = document.getElementById('coin-list-container');
+
+        const ctx = document.getElementById('stockChart').getContext('2d');
+        const stockChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array(20).fill(''),
+                datasets: [{
+                    label: 'Price',
+                    data: coins[selectedCoinKey].history,
+                    borderColor: '#38bdf8',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.1,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {display: false},
+                    y: {grid: {color: '#2a3a50'}, ticks: {color: '#94a3b8'}}
+                },
+                plugins: {legend: {display: false}}
+            }
+        });
+
+        function renderCoinList() {
+            listContainer.innerHTML = '';
+            Object.keys(coins).forEach(key => {
+                const coin = coins[key];
+                const div = document.createElement('div');
+                div.className = `coin-item ${key === selectedCoinKey ? 'active' : ''}`;
+                div.onclick = () => {
+                    if (!isTrading) selectCoin(key);
+                    else alert('⚠️ กรุณารอการเทรดปัจจุบันให้เสร็จสิ้นก่อน');
+                };
+                div.innerHTML = `
+                    <span class="coin-name">${coin.name}</span>
+                    <span class="coin-price" id="list-price-${key}">$${coin.price.toFixed(key === 'USDT' || key === 'USDC' || key === 'TRX' || key === 'DOGE' ? 4 : 2)}</span>
+                `;
+                listContainer.appendChild(div);
+            });
+        }
+
+        function selectCoin(key) {
+            selectedCoinKey = key;
+            symbolEl.innerText = `📊 ${key}/USDT`;
+            stockChart.data.datasets[0].data = [...coins[key].history];
+            stockChart.update();
+            renderCoinList();
+        }
+
+        // ============================================================
+        // 4. Live Simulated Price Updates
+        // ============================================================
+        setInterval(() => {
+            Object.keys(coins).forEach(key => {
+                const coin = coins[key];
+
+                if (!coin.maxSteps) coin.maxSteps = Math.floor(Math.random() * 4) + 4;
+
+                let change = 0;
+                if (coin.trendState === 'up') {
+                    change = (Math.random() * 0.5 + 0.8) * coin.volatility;
+                    coin.trendCount++;
+                    if (coin.trendCount >= coin.maxSteps) {
+                        coin.trendState = 'down';
+                        coin.trendCount = 0;
+                        coin.maxSteps = Math.floor(Math.random() * 4) + 4;
+                    }
+                } else {
+                    change = -(Math.random() * 0.5 + 0.8) * coin.volatility;
+                    coin.trendCount++;
+                    if (coin.trendCount >= coin.maxSteps) {
+                        coin.trendState = 'up';
+                        coin.trendCount = 0;
+                        coin.maxSteps = Math.floor(Math.random() * 4) + 4;
+                    }
+                }
+
+                coin.price = Math.max(0.0001, coin.price + change);
+
+                if (key === selectedCoinKey) {
+                    coin.history.shift();
+                    coin.history.push(coin.price);
+                    stockChart.data.datasets[0].data = coin.history;
+                    stockChart.update();
+
+                    const decimals = key === 'USDT' || key === 'USDC' || key === 'TRX' || key === 'DOGE' ? 4 : 2;
+                    priceEl.innerText = `$${coin.price.toFixed(decimals)}`;
+                }
+
+                const listPriceEl = document.getElementById(`list-price-${key}`);
+                if (listPriceEl) {
+                    const decimals = key === 'USDT' || key === 'USDC' || key === 'TRX' || key === 'DOGE' ? 4 : 2;
+                    listPriceEl.innerText = `$${coin.price.toFixed(decimals)}`;
+                }
+            });
+        }, 1000);
+
+        // ============================================================
+        // 5. Start 30-Second Trade (พร้อมบันทึก localStorage)
+        // ============================================================
+        function start30sTrade(type) {
+            if (isTrading) {
+                alert('⚠️ กรุณารอการเทรดปัจจุบันให้เสร็จสิ้นก่อน');
+                return;
+            }
+
+            const amount = parseFloat(tradeAmountInput.value);
+
+            if (isNaN(amount) || amount <= 0) {
+                alert('⚠️ กรุณากรอกจำนวนเงินที่ถูกต้อง');
+                return;
+            }
+
+            if (amount > currentBalanceUSD) {
+                alert('⚠️ ยอดเงินในบัญชีไม่เพียงพอ');
+                return;
+            }
+
+            if (activeTimer) {
+                clearInterval(activeTimer);
+                activeTimer = null;
+            }
+
+            // ✅ บันทึกสถานะการเทรดลง localStorage ก่อนหักเงิน
+            const pendingData = {
+                type: type,
+                entryPrice: coins[selectedCoinKey].price,
+                amount: amount,
+                symbol: selectedCoinKey,
+                startTime: Date.now()
+            };
+            savePendingTrade(pendingData);
+
+            runTransaction(userBalanceRef, (currentVal) => {
+                return (currentVal || 0) - amount;
+            }).then(() => {
+                isTrading = true;
+                btnBuy.disabled = true;
+                btnSell.disabled = true;
+
+                const entryPrice = coins[selectedCoinKey].price;
+                let timeLeft = 30;
+
+                timerBar.style.display = 'flex';
+                timerType.innerText = type === 'buy' ? `🟢 BUY ${selectedCoinKey}` : `🔴 SELL ${selectedCoinKey}`;
+                timerType.style.color = type === 'buy' ? '#22c55e' : '#ef4444';
+                timerCount.innerText = `⏱️ ${timeLeft}s`;
+
+                activeTimer = setInterval(() => {
+                    timeLeft--;
+                    timerCount.innerText = `⏱️ ${timeLeft}s`;
+
+                    if (timeLeft <= 0) {
+                        clearInterval(activeTimer);
+                        activeTimer = null;
+                        savePendingTrade(null); // ✅ ล้าง localStorage เมื่อจบการเทรด
+                        finishTrade(type, entryPrice, amount);
+                    }
+                }, 1000);
+            }).catch((error) => {
+                console.error('Transaction error:', error);
+                alert('⚠️ เกิดข้อผิดพลาดในการทำธุรกรรม กรุณาลองใหม่');
+                savePendingTrade(null); // ล้าง localStorage ถ้าเกิด error
+                isTrading = false;
+                btnBuy.disabled = false;
+                btnSell.disabled = false;
+            });
+        }
+
+        // ============================================================
+        // 6. Finish Trade (เหมือนเดิม)
+        // ============================================================
+        function finishTrade(type, entryPrice, amount) {
+            if (isFinishing) return;
+            isFinishing = true;
+
+            const exitPrice = coins[selectedCoinKey].price;
+            let win = false;
+            let draw = false;
+
+            if (type === 'buy' && exitPrice > entryPrice) win = true;
+            else if (type === 'sell' && exitPrice < entryPrice) win = true;
+            else if (exitPrice === entryPrice) draw = true;
+
+            let profitOrRefund = 0;
+            let resultText = '';
+            let titleColor = '#ef4444';
+
+            if (win) {
+                profitOrRefund = amount + (amount * 0.85);
+                resultText = 'WIN! 🎉';
+                titleColor = '#22c55e';
+            } else if (draw) {
+                profitOrRefund = amount;
+                resultText = 'DRAW 🤝';
+                titleColor = '#f59e0b';
+            } else {
+                profitOrRefund = 0;
+                resultText = 'LOSS ❌';
+                titleColor = '#ef4444';
+            }
+
+            if (profitOrRefund > 0) {
+                runTransaction(userBalanceRef, (currentVal) => {
+                    return (currentVal || 0) + profitOrRefund;
+                }).catch((error) => {
+                    console.error('Payout transaction error:', error);
+                });
+            }
+
+            const newOrderRef = push(userOrdersRef);
+            set(newOrderRef, {
+                symbol: selectedCoinKey,
+                type: type.toUpperCase(),
+                entryPrice: entryPrice,
+                exitPrice: exitPrice,
+                amount: amount,
+                payout: win ? (amount * 0.85) : (draw ? 0 : -amount),
+                result: win ? 'WIN' : (draw ? 'DRAW' : 'LOSS'),
+                timestamp: new Date().toISOString()
+            }).catch((error) => {
+                console.error('Save order error:', error);
+            });
+
+            document.getElementById('modal-result-title').innerText = resultText;
+            document.getElementById('modal-result-title').style.color = titleColor;
+            document.getElementById('res-symbol').innerText = `${selectedCoinKey}/USDT`;
+            document.getElementById('res-entry').innerText = `$${entryPrice.toFixed(4)}`;
+            document.getElementById('res-exit').innerText = `$${exitPrice.toFixed(4)}`;
+
+            const payoutText = win ? `+$${(amount * 0.85).toFixed(2)} USD` : (draw ? '$0.00 USD' : `-$${amount.toFixed(2)} USD`);
+            document.getElementById('res-payout').innerText = payoutText;
+            document.getElementById('res-payout').style.color = win ? '#22c55e' : (draw ? '#f59e0b' : '#ef4444');
+
+            document.getElementById('result-modal').style.display = 'flex';
+
+            timerBar.style.display = 'none';
+            isTrading = false;
+            isFinishing = false;
+            btnBuy.disabled = false;
+            btnSell.disabled = false;
+        }
+
+        // ============================================================
+        // 7. Event Listeners
+        // ============================================================
+        btnBuy.addEventListener('click', () => start30sTrade('buy'));
+        btnSell.addEventListener('click', () => start30sTrade('sell'));
+
+        document.getElementById('btn-close-modal').addEventListener('click', () => {
+            document.getElementById('result-modal').style.display = 'none';
+        });
+
+        // ============================================================
+        // 8. เริ่มต้น: Render Coin List + กู้คืนการเทรดที่ค้างอยู่
+        // ============================================================
+        renderCoinList();
+
+        // ✅ เรียกฟังก์ชันนี้หลังจากโหลดหน้าเสร็จ
+        // ใช้ setTimeout เพื่อให้ coins และ chart โหลดเสร็จก่อน
+        setTimeout(() => {
+            checkAndRestorePendingTrade();
+        }, 500);
+
+        // ✅ ถ้ามีการปิดหน้าเว็บ (beforeunload) ให้เก็บสถานะไว้
+        window.addEventListener('beforeunload', () => {
+            // ถ้ากำลังเทรดอยู่ ข้อมูลจะถูกเก็บไว้ใน localStorage แล้ว
+            // ไม่ต้องทำอะไรเพิ่ม
+        });
+
+        console.log('✅ MiTrade เริ่มทำงานแล้ว!');
+        console.log('💾 ระบบจะเก็บสถานะการเทรดไว้ใน localStorage หากปิดหน้าเว็บ');
+    </script>
+</body>
+
+<script = src="keep-protect.js" ></script>
+</html>

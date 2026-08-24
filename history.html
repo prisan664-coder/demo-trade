@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MiTrade - Order History</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
+            background: #0f172a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .mobile-container {
+            width: 100%;
+            max-width: 412px;
+            height: 100vh;
+            max-height: 844px;
+            background-color: #121824;
+            color: #ffffff;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            border-radius: 36px;
+            border: 8px solid #1e293b;
+        }
+
+        header {
+            background: rgba(24, 119, 242, 0.95);
+            backdrop-filter: blur(10px);
+            color: #ffffff;
+            text-align: center;
+            padding: 14px 12px;
+            box-shadow: 0 2px 10px rgba(24, 119, 242, 0.2);
+            z-index: 10;
+        }
+
+        header h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        nav {
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            z-index: 9;
+        }
+
+        nav ul {
+            display: flex;
+            justify-content: space-around;
+            list-style: none;
+            padding: 8px 6px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.82rem;
+            padding: 6px 12px;
+            border-radius: 18px;
+            display: inline-block;
+        }
+
+        nav ul li a.active {
+            background: #1877f2;
+            color: #ffffff;
+        }
+
+        main {
+            padding: 16px 12px;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .page-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #38bdf8;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-count {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            font-weight: normal;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-bottom: 10px;
+        }
+
+        .order-card {
+            background: #1e293b;
+            border-radius: 14px;
+            padding: 14px 16px;
+            border: 1px solid #334155;
+            transition: all 0.2s;
+        }
+
+        .order-card:hover {
+            border-color: #38bdf8;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .order-symbol {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #f8fafc;
+        }
+
+        .order-time {
+            font-size: 0.7rem;
+            color: #94a3b8;
+        }
+
+        .order-body {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .order-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .order-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .order-badge {
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 2px 10px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        .badge-buy {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid #22c55e;
+        }
+
+        .badge-sell {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        .badge-win {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid #22c55e;
+        }
+
+        .badge-loss {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        .badge-draw {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            border: 1px solid #f59e0b;
+        }
+
+        .order-price-row {
+            display: flex;
+            gap: 12px;
+            font-size: 0.78rem;
+            color: #cbd5e1;
+        }
+
+        .order-price-row span {
+            background: #121824;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .order-amount {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #e2e8f0;
+        }
+
+        .order-payout {
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .payout-positive {
+            color: #22c55e;
+        }
+
+        .payout-negative {
+            color: #ef4444;
+        }
+
+        .payout-zero {
+            color: #f59e0b;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #64748b;
+            padding: 50px 20px;
+            font-size: 0.95rem;
+        }
+
+        .empty-state .icon {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 12px 10px;
+            font-size: 0.75rem;
+            color: #ffffff;
+            background: #1877f2;
+            margin-top: auto;
+        }
+
+        /* Scrollbar styling */
+        .history-list::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .history-list::-webkit-scrollbar-track {
+            background: #1e293b;
+            border-radius: 10px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background: #38bdf8;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 480px) {
+
+            html,
+            body {
+                padding: 0;
+                background: #121824;
+            }
+
+            .mobile-container {
+                max-width: 100%;
+                height: 100vh;
+                border-radius: 0;
+                border: none;
+            }
+
+            .order-body {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .order-right {
+                align-items: flex-start;
+                flex-direction: row;
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+
+            .order-price-row {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="mobile-container">
+        <header>
+            <h1>MiTrade - Multi-Crypto</h1>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="home.html">🏠 Home</a></li>
+                <li><a href="history.html" class="active">📜 History</a></li>
+                <li><a href="index.html">ℹ️ Admin</a></li>
+                <li><a href="profile.html">⚙️ profile</a></li>
+            </ul>
+        </nav>
+
+        <main>
+            <div class="page-title">
+                <span>📜 ประวัติคำสั่งซื้อขาย</span>
+                <span class="order-count" id="order-count">0 รายการ</span>
+            </div>
+
+            <div class="history-list" id="history-container">
+                <div class="empty-state">
+                    <span class="icon">📭</span>
+                    กำลังโหลดประวัติการเทรด...
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 สงวนลิขสิทธิ์</p>
+            <p>version 1.2: Mitrade History</p>
+        </footer>
+    </div>
+
+    <script type="module">
+        import {initializeApp} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import {getDatabase, ref, onValue} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDCE_qqKanTTdVXYwBMBIfPu0M0Xy-kbX8",
+            authDomain: "hujai-web.firebaseapp.com",
+            databaseURL: "https://hujai-web-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "hujai-web",
+            storageBucket: "hujai-web.firebasestorage.app",
+            messagingSenderId: "827968973337",
+            appId: "1:827968973337:web:ae6ef630b59cf429575888",
+            measurementId: "G-XCF3TBNG8L"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const container = document.getElementById('history-container');
+        const orderCountEl = document.getElementById('order-count');
+        const userOrdersRef = ref(db, 'users/demoUser/orders');
+
+        // ฟังก์ชันจัดรูปแบบตัวเลข
+        function formatNumber(num, decimals = 2) {
+            if (num === undefined || num === null) return '0.00';
+            return Number(num).toFixed(decimals);
+        }
+
+        // ฟังก์ชันจัดรูปแบบวันที่แบบไทย
+        function formatThaiDate(timestamp) {
+            if (!timestamp) return 'ไม่ระบุเวลา';
+            const dateObj = new Date(timestamp);
+            return dateObj.toLocaleString('th-TH', {
+                day: '2-digit',
+                month: 'short',
+                year: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+
+        // ฟังก์ชันสร้าง Badge Result
+        function getResultBadge(result) {
+            if (result === 'WIN') {
+                return `<span class="order-badge badge-win">✅ WIN</span>`;
+            } else if (result === 'LOSS') {
+                return `<span class="order-badge badge-loss">❌ LOSS</span>`;
+            } else if (result === 'DRAW') {
+                return `<span class="order-badge badge-draw">🤝 DRAW</span>`;
+            }
+            return `<span class="order-badge" style="background:rgba(100,116,139,0.2);color:#94a3b8;border:1px solid #94a3b8;">⏳ PENDING</span>`;
+        }
+
+        // ฟังก์ชันจัดรูปแบบ Payout
+        function formatPayout(payout) {
+            if (payout === undefined || payout === null) {
+                return {text: '$0.00', class: 'payout-zero'};
+            }
+            const num = Number(payout);
+            if (num > 0) {
+                return {text: `+$${num.toFixed(2)}`, class: 'payout-positive'};
+            } else if (num < 0) {
+                return {text: `-$${Math.abs(num).toFixed(2)}`, class: 'payout-negative'};
+            } else {
+                return {text: '$0.00', class: 'payout-zero'};
+            }
+        }
+
+        // ดึงข้อมูลจาก Firebase แบบ Real-time
+        onValue(userOrdersRef, (snapshot) => {
+            const data = snapshot.val();
+            container.innerHTML = '';
+            orderCountEl.textContent = '0 รายการ';
+
+            if (!data) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="icon">📭</span>
+                        ยังไม่มีประวัติการซื้อขาย<br>
+                        <span style="font-size:0.8rem;color:#475569;">เริ่มเทรดครั้งแรกของคุณเลย!</span>
+                    </div>
+                `;
+                return;
+            }
+
+            // แปลงข้อมูลเป็น Array และเรียงลำดับจากใหม่ไปเก่า
+            const ordersArray = Object.keys(data).map(key => {
+                return {id: key, ...data[key]};
+            });
+
+            // เรียงตาม timestamp จากใหม่ไปเก่า
+            ordersArray.sort((a, b) => {
+                const dateA = new Date(a.timestamp || 0);
+                const dateB = new Date(b.timestamp || 0);
+                return dateB - dateA;
+            });
+
+            // อัปเดตจำนวนรายการ
+            orderCountEl.textContent = `${ordersArray.length} รายการ`;
+
+            if (ordersArray.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="icon">📭</span>
+                        ยังไม่มีประวัติการซื้อขาย
+                    </div>
+                `;
+                return;
+            }
+
+            // สร้างการ์ดแสดงประวัติ
+            ordersArray.forEach((order, index) => {
+                const isBuy = order.type === 'BUY';
+                const result = order.result || 'PENDING';
+                const payoutInfo = formatPayout(order.payout);
+
+                // ใช้ค่า price หรือ entryPrice
+                const displayPrice = order.price || order.entryPrice || 0;
+                const exitPrice = order.exitPrice || 0;
+                const amount = order.amount || 0;
+
+                // จัดรูปแบบราคา
+                const priceStr = formatNumber(displayPrice, 4);
+                const exitPriceStr = formatNumber(exitPrice, 4);
+                const amountStr = formatNumber(amount, 2);
+
+                const cardHtml = `
+                    <div class="order-card">
+                        <!-- ส่วนหัว: สินทรัพย์ + เวลา -->
+                        <div class="order-header">
+                            <span class="order-symbol">${order.symbol || 'BTC'}/USDT</span>
+                            <span class="order-time">🕐 ${formatThaiDate(order.timestamp)}</span>
+                        </div>
+
+                        <!-- ส่วนเนื้อหา -->
+                        <div class="order-body">
+                            <div class="order-left">
+                                <!-- แสดงประเภทและผลลัพธ์ -->
+                                <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                                    <span class="order-badge ${isBuy ? 'badge-buy' : 'badge-sell'}">
+                                        ${isBuy ? '🟢 BUY' : '🔴 SELL'}
+                                    </span>
+                                    ${getResultBadge(result)}
+                                </div>
+
+                                <!-- แสดงราคาเข้า-ออก -->
+                                <div class="order-price-row">
+                                    <span>💰 เข้า: $${priceStr}</span>
+                                    <span>🚪 ออก: $${exitPriceStr}</span>
+                                </div>
+                            </div>
+
+                            <div class="order-right">
+                                <!-- แสดงจำนวนเงินลงทุน -->
+                                <span class="order-amount">💵 ลงทุน: $${amountStr}</span>
+                                <!-- แสดงกำไร/ขาดทุน -->
+                                <span class="order-payout ${payoutInfo.class}">
+                                    ${payoutInfo.text}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.innerHTML += cardHtml;
+            });
+        }, (error) => {
+            console.error('Error fetching orders:', error);
+            container.innerHTML = `
+                <div class="empty-state">
+                    <span class="icon">⚠️</span>
+                    เกิดข้อผิดพลาดในการโหลดข้อมูล<br>
+                    <span style="font-size:0.8rem;color:#475569;">กรุณาลองใหม่อีกครั้ง</span>
+                </div>
+            `;
+        });
+    </script>
+</body>
+
+<script = src="keep-protect.js" ></script>
+</html>
